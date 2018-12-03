@@ -25,6 +25,42 @@ getSUF <- function(table_data = NULL,
 
   # table_cond <- read_csv("www/conductivities.csv")
 
+   ###################################################################
+  #  Connection between basal and Shoot born root with the main axes  #
+   ###################################################################
+  
+  setDT(table_data)
+  # Re-arrange the input data
+  orders <- unique(table_cond$order)
+  ids <- unique(table_cond$order_id)
+  #table_data$name <- "root"
+  for(o in c(1:length(orders))){
+    table_data$name[table_data$type == ids[o]] <- orders[o]
+  }
+  
+  first <- table_data[table_data$node1ID == 0,]
+  nodals_ids <- unique(table_data$branchID[table_data$type == 4 | table_data$type == 5])
+  for(no in nodals_ids){
+    temp <- table_data[table_data$branchID == no][1]
+    connection <- data.frame(node1ID = 0,
+                             node2ID = temp$node1ID,
+                             branchID = temp$branchID,
+                             x1 = first$x1, y1 = first$y1, z1 = first$z1,
+                             x2 = temp$x1, y2 = temp$y1, z2 = temp$z1,
+                             radius = temp$radius,
+                             length = sqrt((first$x1-temp$x1)^2 + (first$y1-temp$y1)^2 + (first$z1-temp$z1)^2 ),
+                             R = 0, G = 0, B = 0,
+                             time = temp$time,
+                             type = 0, #replace temp$type by 0 ?
+                             age = temp$age,
+                             rep = temp$rep,
+                             name = temp$name)
+    new_table = rbind(table_data, connection)
+    table_data = new_table
+  }
+  table_data <- table_data[order(table_data$node2ID, decreasing = F),]
+  
+  
   ####################################################
   # Input data
   ####################################################
