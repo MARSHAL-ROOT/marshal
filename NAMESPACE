@@ -1,4 +1,5 @@
 exportPattern("^[[:alpha:]]+")
 export(getSUF)
 import(Matrix)
+import(data.table)
 
