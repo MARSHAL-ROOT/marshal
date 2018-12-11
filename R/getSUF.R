@@ -11,7 +11,8 @@ getSUF <- function(table_data = NULL,
                    table_cond = NULL,
                    table_soil = NULL,
                    hetero = TRUE,
-                   Psi_collar = -15000){
+                   Psi_collar = -15000,
+                  verbatim = F){
   ####################################################
   #	Calculates Couvreur Macroscopic parameters   #
   ####################################################
@@ -29,6 +30,7 @@ getSUF <- function(table_data = NULL,
   #  Connection between basal and Shoot born root with the main axes  #
    ###################################################################
   
+  if(verbatim) message("Load data")
   setDT(table_data)
   # Re-arrange the input data
   orders <- unique(table_cond$order)
@@ -38,6 +40,7 @@ getSUF <- function(table_data = NULL,
     table_data$name[table_data$type == ids[o]] <- orders[o]
   }
   
+  if(verbatim) message("Create connections")
   first <- table_data[table_data$node1ID == 0,]
   nodals_ids <- unique(table_data$branchID[table_data$type == 4 | table_data$type == 5])
   for(no in nodals_ids){
@@ -64,6 +67,8 @@ getSUF <- function(table_data = NULL,
   ####################################################
   # Input data
   ####################################################
+  if(verbatim) message("Preprocess data")
+  
   prev <- table_data$node1ID 	  # mother segment
   l <- table_data$length    	  # segment length
   l[l == 0] <- 10e-9
@@ -78,6 +83,7 @@ getSUF <- function(table_data = NULL,
   Psi_sr_heterogeneous <- -3000   # Heterogeneous soil-root potential
 
   ####################################################
+    if(verbatim) message("Extrapolate Kr Kx function")
   # Interpolates kr,kx functions
 
   order_uni=unique(order)
@@ -124,10 +130,11 @@ getSUF <- function(table_data = NULL,
   # -----------------------
   # -----------------------
   # -----------------------
-
+     if(verbatim) message(">> Homogeneous conditions")
   Psi_sr= Psi_sr_homogeneous * matrix(1,Nseg,1) # Soil-root potential for each segment
 
   ####################################################
+   if(verbatim) message("Build matrix A")
   # Build Matrices
   A = Matrix(c(0),nrow=Nseg+1,ncol=Nseg+1,sparse = TRUE) # Matrix A sparse
 
@@ -154,6 +161,7 @@ getSUF <- function(table_data = NULL,
   A <- sparseMatrix(rows, columns, x = x) # Assignates values to specific locations
   a <- A[-1,-1]				    # a matrix = A without the first line and column
 
+  if(verbatim) message("Build matrix B")
   # Build Matrix B
   B <- Matrix(c(0),nrow=Nseg+1,ncol=1,sparse = TRUE) # Matrix B sparse
 
@@ -175,6 +183,7 @@ getSUF <- function(table_data = NULL,
   b[prev_collar] <- b[prev_collar] - (Psi_collar * (kappa[prev_collar] / sinh(tau[prev_collar] * l[prev_collar])))
 
   ####################################################
+   if(verbatim) message("Compute solution")
   # Compute solution
 
   X <- solve(a,b) 		 # a\b
@@ -189,6 +198,7 @@ getSUF <- function(table_data = NULL,
 
   remove(a, b, A, B)
 
+     if(verbatim) message("Macroscopic solution")
   # Macroscopic solution
   Tpot=sum(Jr) 		 # Actual transpiration
   SUF=Jr/Tpot  		 # SUF = normalized uptake
@@ -206,6 +216,7 @@ getSUF <- function(table_data = NULL,
   # -----------------------
   # -----------------------
 
+     if(verbatim) message(">> Heterogeneous conditions")
 
   if(hetero){
 
@@ -216,6 +227,8 @@ getSUF <- function(table_data = NULL,
 
     ####################################################
     # Build Matrices
+      if(verbatim) message("Build matrix A")
+
     A = Matrix(c(0),nrow=Nseg+1,ncol=Nseg+1,sparse = TRUE) # Matrix A sparse
 
     j <- 1:Nseg
@@ -241,6 +254,8 @@ getSUF <- function(table_data = NULL,
     A <- sparseMatrix(rows, columns, x = x) # Assignates values to specific locations
     a = A[-1,-1]				    # a matrix = A without the first line and column
 
+      if(verbatim) message("Build matrix B")
+
     # Build Matrix B
     B = Matrix(c(0),nrow=Nseg+1,ncol=1,sparse = TRUE) # Matrix B sparse
 
@@ -263,6 +278,7 @@ getSUF <- function(table_data = NULL,
 
     ####################################################
     # Compute solution
+  if(verbatim) message("Compute solution")
 
     X=solve(a,b) 		 # a\b
     Psi_basal=X  		 # Solution = Psi_basal
@@ -280,6 +296,7 @@ getSUF <- function(table_data = NULL,
   }
 
 
+  if(verbatim) message("Export data")
   ####################################################
   return(list(suf=log10(SUF),
               suf1 = SUF,
