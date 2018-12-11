@@ -1,2 +1,4 @@
 exportPattern("^[[:alpha:]]+")
 export(getSUF)
+importFrom(Matrix, Matrix)
+
