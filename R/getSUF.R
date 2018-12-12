@@ -4,6 +4,8 @@
 #' @param table_cond    A data frame with the plant conductivity parameters
 #' @param table_soil    A data frame with the soil humidity profile
 #' @param hetero    Do we need to compute the uptake in heterogeneous soil?
+#' @param Psi_collar Water potential at the collar (boundary condition) [hPa]
+#' @param verbatim If true, outputs the different step of the procedure
 #' @keywords root, water
 #'
 
@@ -29,7 +31,7 @@ getSUF <- function(table_data = NULL,
    ###################################################################
   #  Connection between basal and Shoot born root with the main axes  #
    ###################################################################
-  
+
   if(verbatim) message("Load data")
   setDT(table_data)
   # Re-arrange the input data
@@ -39,7 +41,7 @@ getSUF <- function(table_data = NULL,
   for(o in c(1:length(orders))){
     table_data$name[table_data$type == ids[o]] <- orders[o]
   }
-  
+
   if(verbatim) message("Create connections")
   first <- table_data[table_data$node1ID == 0,]
   nodals_ids <- unique(table_data$branchID[table_data$type == 4 | table_data$type == 5])
@@ -62,13 +64,13 @@ getSUF <- function(table_data = NULL,
     table_data = new_table
   }
   table_data <- table_data[order(table_data$node2ID, decreasing = F),]
-  
-  
+
+
   ####################################################
   # Input data
   ####################################################
   if(verbatim) message("Preprocess data")
-  
+
   prev <- table_data$node1ID 	  # mother segment
   l <- table_data$length    	  # segment length
   l[l == 0] <- 10e-9

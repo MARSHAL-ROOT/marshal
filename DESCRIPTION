@@ -2,10 +2,11 @@ Package: marshal
 Type: Package
 Title: MARSHAL: the MAize Root System Hydraulic Architecture soLver
 Version: 0.1.0
-Author: Félicien Meunier, Guillaume Lobet
+Author: Félicien Meunier, Guillaume Lobet, Adrien Heymans
 Maintainer: The package maintainer <g.lobet@fz-juelich.de>
 Description: Computes hydraulic properties of root systems based on simulation data from CRootBox
 License: GPL-3
+Imports: data.table, Matrix
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.0.1
+RoxygenNote: 6.0.1.9000

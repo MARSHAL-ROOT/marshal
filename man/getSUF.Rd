@@ -5,7 +5,7 @@
 \title{Get the hydraulic properties of a given root system. Needs the root architecture from CRootBox, hydraulic properties and soil conditions.}
 \usage{
 getSUF(table_data = NULL, table_cond = NULL, table_soil = NULL,
-  hetero = TRUE, Psi_collar = -15000)
+  hetero = TRUE, Psi_collar = -15000, verbatim = F)
 }
 \arguments{
 \item{table_data}{A data frame with the CRootBox simulation results}
@@ -15,6 +15,10 @@ getSUF(table_data = NULL, table_cond = NULL, table_soil = NULL,
 \item{table_soil}{A data frame with the soil humidity profile}
 
 \item{hetero}{Do we need to compute the uptake in heterogeneous soil?}
+
+\item{Psi_collar}{Water potential at the collar (boundary condition) [hPa]}
+
+\item{verbatim}{If true, outputs the different step of the procedure}
 }
 \description{
 Get the hydraulic properties of a given root system. Needs the root architecture from CRootBox, hydraulic properties and soil conditions.
