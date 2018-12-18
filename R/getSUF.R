@@ -10,7 +10,7 @@
 #' @description Get the hydraulic properties of a given root system. Needs the root architecture from CRootBox, hydraulic properties and soil conditions.
 #' @author Felicien Meunier
 #' @examples A full working example is provided with a MARSHAL pipeline on the following repository:
-#' \code{\link{https://github.com/MARSHAL-ROOT/marshal-pipeline}}
+#' https://github.com/MARSHAL-ROOT/marshal-pipeline
 #'
 #' # Example 1
 #' table_data <- rootsystem
