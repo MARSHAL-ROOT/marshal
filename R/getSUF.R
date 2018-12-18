@@ -1,20 +1,69 @@
 
-#' Get the hydraulic properties of a given root system. Needs the root architecture from CRootBox, hydraulic properties and soil conditions.
-#' @param table_data    A data frame with the CRootBox simulation results
-#' @param table_cond    A data frame with the plant conductivity parameters
-#' @param table_soil    A data frame with the soil humidity profile
-#' @param hetero    Do we need to compute the uptake in heterogeneous soil?
-#' @param Psi_collar Water potential at the collar (boundary condition) [hPa]
+#' @title MARSHAL: MAize Root System Hydraulic Architecture Solver
+#' @param table_data    A data frame with the CRootBox simulation results. The root system architecture should be descretize by small root segment. Needs column node1ID, node2ID, branchID, x1, y1, z1, x2, y2, z2, radius [cm], length [cm], R, G, B, time [d], type, age [d], rep.
+#' @param table_cond    A data frame with the plant conductivity parameters. Needs column id, order_id [root type], order [root type name], type ("Kr" or "Kx"), x (distance from the apex)[cm], y (value for Kx [cm4 hPa-1 d-1] or Kr [cm hPa-1 d-1]).
+#' @param table_soil    A data frame with the soil humidity profile. Needs column: id, z [cm], psi [hPa].
+#' @param hetero    Do we need to compute the uptake in heterogeneous soil? Default: hetero = TRUE
+#' @param Psi_collar Water potential at the collar (boundary condition). Default: -15.000 [hPa]
 #' @param verbatim If true, outputs the different step of the procedure
 #' @keywords root, water
+#' @description Get the hydraulic properties of a given root system. Needs the root architecture from CRootBox, hydraulic properties and soil conditions.
+#' @author Felicien Meunier
+#' @examples A full working example is provided with a MARSHAL pipeline on the following repository:
+#' \code{\link{https://github.com/MARSHAL-ROOT/marshal-pipeline}}
 #'
+#' # Example 1
+#' table_data <- rootsystem
+#' table_cond <- conductivities
+#' table_soil <- soil
+#' hydraulics <- getSUF(table_data, table_cond, table_soil)
+#' results <- data.frame(krs = hydraulics$krs, tact = hydraulics$tact, tpot = hydraulics$tpot)
+#'
+#' ######################################################################
+#' # To merge the output of MARSHAL on the dataframe of the root system #
+#' # Format dataframe for MARSHAL output                                #
+#' ######################################################################
+#'
+#' first <- rootsystem[rootsystem$node1ID == 0,]
+#' nodals_ids <- unique(rootsystem$branchID[rootsystem$type == 4 | rootsystem$type == 5])
+#'
+#' for(no in nodals_ids){
+#'  temp <- filter(rootsystem, branchID == no)
+#'  temp <- temp[1,]
+#'  connection <- data.frame(node1ID = 0, node2ID = temp$node1ID, branchID = temp$branchID,
+#'                           x1 = first$x1, y1 = first$y1, z1 = first$z1,
+#'                           x2 = temp$x1, y2 = temp$y1, z2 = temp$z1,
+#'                           radius = temp$radius,
+#'                           length = sqrt((first$x1-temp$x1)^2 + (first$y1-temp$y1)^2 + (first$z1-temp$z1)^2 ),
+#'                           R = 0, G = 0, B = 0,
+#'                           time = temp$time,
+#'                           type = temp$type,
+#'                           age = temp$age,
+#'                           rep = temp$rep)
+#'  new_table = rbind(rootsystem, connection)
+#'  rootsystem = new_table
+#' }
+#' rootsystem <- rootsystem[order(rootsystem$node2ID, decreasing = F),]
+#'
+#' ####################################################
+#' # Merge output of MARSHAL on specific root segment #
+#' ####################################################
+#'
+#' rootsystem$suf <- as.vector(hydraulics$suf)
+#' rootsystem$suf1 <- as.vector(hydraulics$suf1)
+#' rootsystem$kx <- as.vector(hydraulics$kx)
+#' rootsystem$kr <- as.vector(hydraulics$kr)
+#' rootsystem$jr <- as.vector(hydraulics$jr)
+#' rootsystem$psi <- as.vector(hydraulics$psi)
+#' rootsystem$jxl <- as.vector(hydraulics$jxl)
+#' rootsystem$psi_soil <- as.vector(hydraulics$psi_soil)
 
 getSUF <- function(table_data = NULL,
                    table_cond = NULL,
                    table_soil = NULL,
                    hetero = TRUE,
                    Psi_collar = -15000,
-                  verbatim = F){
+                   verbatim = F){
   ####################################################
   #	Calculates Couvreur Macroscopic parameters   #
   ####################################################
@@ -56,7 +105,7 @@ getSUF <- function(table_data = NULL,
                              length = sqrt((first$x1-temp$x1)^2 + (first$y1-temp$y1)^2 + (first$z1-temp$z1)^2 ),
                              R = 0, G = 0, B = 0,
                              time = temp$time,
-                             type = 0, #replace temp$type by 0 ?
+                             type = 0,
                              age = temp$age,
                              rep = temp$rep,
                              name = temp$name)
