@@ -1,12 +1,12 @@
 Package: marshal
 Type: Package
 Title: MARSHAL: the MAize Root System Hydraulic Architecture soLver
-Version: 0.1.0
+Version: 0.2.0
 Author: Félicien Meunier, Guillaume Lobet, Adrien Heymans
 Maintainer: The package maintainer <g.lobet@fz-juelich.de>
-Description: Computes hydraulic properties of root systems based on simulation data from CRootBox
-License: GPL-3
-Imports: data.table, Matrix
+Description: Computes hydraulic properties of root systems based on simulation data from CPlantBox. Get the hydraulic properties of a given root system. Needs the root architecture, and the hydraulic properties. In addition, it can also do the same in heterogeneous soil conditions and account for root accumulation and dry rhizosphere.
+License: Apache License (>= 2.0)
+Imports: data.table, Matrix, dplyr, stats
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.0
+RoxygenNote: 7.3.1
